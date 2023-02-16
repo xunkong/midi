@@ -20,8 +20,9 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@v35.5.3
         with:
-          write_output_files: true
           json: true
+          json_raw_format: true
+          write_output_files: true
 
       - name: Show Changed Files
         shell: pwsh
