@@ -59,8 +59,9 @@ static List<string> GetMidiFiles(List<string> inputs)
 {
     var list = new List<string>();
 
-    foreach (var item in inputs)
+    foreach (var input in inputs)
     {
+        var item = input.Replace("\"", "");
         if (File.Exists(item) && Path.GetExtension(item).ToLower() is ".mid" or ".midi")
         {
             list.Add(item);
