@@ -1,0 +1,28 @@
+name: Comment Result
+
+on:
+  workflow_run:
+    workflows: [Check Midi]
+    types: [completed]
+
+  workflow_dispatch:
+
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Download Artifact
+        run: gh run download ${{github.event.workflow_run.id}} -n result -R ${{github.repository}}
+        env:
+          GH_TOKEN: ${{github.token}}
+
+      - name: Comment Result
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{github.token}}
+        run: |
+          $json = ConvertFrom-Json (Get-Content .config -Raw);
+          gh pr comment $json.pr_number -F result.md -R ${{github.repository}};

@@ -1,0 +1,51 @@
+name: Check Midi
+
+on:
+  pull_request:
+    branches: ["main"]
+
+  workflow_dispatch:
+
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Changed Files
+        id: changed-files
+        uses: tj-actions/changed-files@v35.5.3
+        with:
+          write_output_files: true
+          json: true
+
+      - name: Show Changed Files
+        shell: pwsh
+        run: ConvertFrom-Json (Get-Content .github/outputs/all_changed_files.txt)
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.0.x
+
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Check Midi Files
+        run: dotnet run --project ./src/midi/midi.csproj check -fl .github/outputs/all_changed_files.txt -o .github/result.md
+
+      - name: Add Config
+        shell: pwsh
+        run: Add-Content -Path .github/.config -Value (ConvertTo-Json @{ pr_number = ${{github.event.number}} });
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: result
+          path: |
+            .github/.config
+            .github/result.md
