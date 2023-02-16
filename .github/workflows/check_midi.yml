@@ -25,7 +25,7 @@ jobs:
 
       - name: Show Changed Files
         shell: pwsh
-        run: ConvertFrom-Json (Get-Content .github/outputs/all_changed_files.txt)
+        run: ConvertFrom-Json (Get-Content .github/outputs/all_changed_files.json)
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
@@ -36,7 +36,7 @@ jobs:
         run: dotnet restore
 
       - name: Check Midi Files
-        run: dotnet run --project ./src/midi/midi.csproj check -fl .github/outputs/all_changed_files.txt -o .github/result.md -rp ./
+        run: dotnet run --project ./src/midi/midi.csproj check -fl .github/outputs/all_changed_files.json -o .github/result.md -rp ./
 
       - name: Add Config
         shell: pwsh
