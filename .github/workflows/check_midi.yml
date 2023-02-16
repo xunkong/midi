@@ -36,7 +36,7 @@ jobs:
         run: dotnet restore
 
       - name: Check Midi Files
-        run: dotnet run --project ./src/midi/midi.csproj check -fl .github/outputs/all_changed_files.txt -o .github/result.md
+        run: dotnet run --project ./src/midi/midi.csproj check -fl .github/outputs/all_changed_files.txt -o .github/result.md -rp ./
 
       - name: Add Config
         shell: pwsh
