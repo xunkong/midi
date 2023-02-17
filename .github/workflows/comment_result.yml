@@ -24,5 +24,7 @@ jobs:
         env:
           GH_TOKEN: ${{github.token}}
         run: |
-          $json = ConvertFrom-Json (Get-Content .config -Raw);
-          gh pr comment $json.pr_number -F result.md -R ${{github.repository}};
+          if(Test-Path result.md -PathType Leaf) {
+            $json = ConvertFrom-Json (Get-Content .config -Raw);
+            gh pr comment $json.pr_number -F result.md -R ${{github.repository}};
+          }

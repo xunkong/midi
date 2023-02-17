@@ -42,6 +42,12 @@ checkCommand.SetHandler((inputs, filelist, output, relativePath) =>
         }
     }
     var files = GetMidiFiles(list);
+    Console.WriteLine($"{files.Count} midi files need to check");
+    if (files.Count == 0)
+    {
+        return;
+    }
+    Console.WriteLine("----------");
     CheckMidiFiles(files, output, relativePath);
 
 }, inputOption, fileListOption, outputOption, relativePathOption);
@@ -59,8 +65,10 @@ static List<string> GetMidiFiles(List<string> inputs)
 {
     var list = new List<string>();
 
-    foreach (var item in inputs)
+    foreach (var input in inputs)
     {
+        Console.WriteLine($"input: {input}");
+        var item = input.Replace("\"", "");
         if (File.Exists(item) && Path.GetExtension(item).ToLower() is ".mid" or ".midi")
         {
             list.Add(item);
@@ -68,6 +76,7 @@ static List<string> GetMidiFiles(List<string> inputs)
         if (Directory.Exists(item))
         {
             var files = Directory.GetFiles(item, "*.mid", SearchOption.AllDirectories);
+            Console.WriteLine($"find {files.Length} midi files");
             list.AddRange(files);
         }
     }
@@ -82,12 +91,14 @@ static List<string> GetMidiFiles(List<string> inputs)
 
 static void CheckMidiFiles(List<string> files, string output, string? relativePath = null)
 {
+    bool error = false;
     var results = new List<MidiCheckResult>(files.Count);
 
     foreach (var file in files)
     {
         try
         {
+            Console.WriteLine($"check: {file}");
             var midi = MidiReader.ReadFile(file);
             var result = new MidiCheckResult
             {
@@ -103,6 +114,7 @@ static void CheckMidiFiles(List<string> files, string output, string? relativePa
         }
         catch (Exception ex)
         {
+            error = true;
             Console.Error.WriteLine(ex);
             var result = new MidiCheckResult
             {
@@ -130,11 +142,20 @@ static void CheckMidiFiles(List<string> files, string output, string? relativePa
     }
 
     var sb = new StringBuilder();
-    sb.AppendLine("| Folder / File | Time | Track Count | Note Count | Hit Rate (Windsong) | Hit Rate (Vintage) | Error |");
-    sb.AppendLine("| --- | --- | --- | --- | --- | --- | --- |");
+    sb.AppendLine($"Thanks for your pull request, the following table shows result of {list.Count} MIDI files.");
+    sb.AppendLine();
+    sb.AppendLine($"| Folder / File | Time | Track Count | Note Count | Hit Rate (Windsong) | Hit Rate (Vintage) |{(error ? " Error |" : "")}");
+    sb.AppendLine($"| --- | --- | --- | --- | --- | --- |{(error ? " --- |" : "")}");
     foreach (var item in list)
     {
-        sb.AppendLine($"| {item.FileName} | {item.Time} | {item.TrackCount} | {item.NoteCount} | {item.HitRate_Windsong} | {item.HitRate_Vintage} | {item.Error} |");
+        if (string.IsNullOrWhiteSpace(item.FilePath))
+        {
+            sb.AppendLine($"| **{item.FileName}** | {item.Time} | {item.TrackCount} | {item.NoteCount} | {item.HitRate_Windsong} | {item.HitRate_Vintage} |{(error ? $" {item.Error} |" : "")}");
+        }
+        else
+        {
+            sb.AppendLine($"| {item.FileName} | {item.Time} | {item.TrackCount} | {item.NoteCount} | {item.HitRate_Windsong} | {item.HitRate_Vintage} |{(error ? $" {item.Error} |" : "")}");
+        }
     }
 
     var dir = Path.GetDirectoryName(output);
