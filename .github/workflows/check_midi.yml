@@ -21,8 +21,11 @@ jobs:
         uses: tj-actions/changed-files@v35.5.3
         with:
           json: true
-          json_raw_format: true
+          quotepath: false
           write_output_files: true
+          files: |
+            midi/**/*.mid
+            midi/**/*.midi
 
       - name: Show Changed Files
         shell: pwsh
