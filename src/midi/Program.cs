@@ -142,7 +142,7 @@ static void CheckMidiFiles(List<string> files, string output, string? relativePa
     }
 
     var sb = new StringBuilder();
-    sb.AppendLine($"Thanks for your pull request, the following table shows result of {list.Count} MIDI files.");
+    sb.AppendLine($"Thanks for your pull request, the following table shows checking result of {files.Count} MIDI files.");
     sb.AppendLine();
     sb.AppendLine($"| Folder / File | Time | Track Count | Note Count | Hit Rate (Windsong) | Hit Rate (Vintage) |{(error ? " Error |" : "")}");
     sb.AppendLine($"| --- | --- | --- | --- | --- | --- |{(error ? " --- |" : "")}");
